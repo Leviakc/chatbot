@@ -4,7 +4,7 @@ import { Input } from "./components/Input";
 import { createSignal, onMount } from "solid-js";
 import { data } from "./data";
 //@ts-ignore
-import { CreateMLCEngine } from "https://esm.run/@mlc-ai/web-llm";
+import { CreateMLCEngine } from "@mlc-ai/web-llm";
 
 function App() {
   const [messages, setMessage] = createSignal(data);
