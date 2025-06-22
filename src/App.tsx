@@ -1,12 +1,78 @@
-import { createSignal } from "solid-js";
+import { ChatMessages } from "./components/ChatMessages";
+import { Header } from "./components/Header";
+import { Input } from "./components/Input";
+import { createSignal, onMount } from "solid-js";
+import { data } from "./data";
+//@ts-ignore
+import { CreateMLCEngine } from "https://esm.run/@mlc-ai/web-llm";
 
 function App() {
-  const [count, setCount] = createSignal(0);
+  const [messages, setMessage] = createSignal(data);
+  const [smallInput, setSmallInput] = createSignal("");
+  const [loading, setLoading] = createSignal(true);
+
+  //@ts-ignore
+  let engine;
+  let $small;
+  onMount(async () => {
+    // @ts-ignore
+    const initProgressCallback = (initProgress) => {
+      setSmallInput(initProgress.text);
+      if (initProgress.progress === 1) {
+        setLoading(false);
+      }
+    };
+    const selectedModel = "SmolLM2-360M-Instruct-q4f32_1-MLC";
+
+    engine = await CreateMLCEngine(
+      selectedModel,
+      { initProgressCallback: initProgressCallback }, // engineConfig
+    );
+  });
+  const handleMessage = async (message: string) => {
+    console.log("handleMessage", message);
+    //@ts-ignore
+    if (engine === undefined) {
+      console.error("Engine is not initialized yet.");
+      return;
+    }
+    if (message.trim() === "" && message === undefined) {
+      console.warn("Empty message, not sending.");
+      return;
+    }
+
+    //@ts-ignore
+    console.log("engine", engine);
+    //@ts-ignore
+    const response = await engine.chat.completions.create({
+      messages: [
+        ...messages(),
+        {
+          role: "user",
+          content: message,
+        },
+      ],
+    });
+    console.log("response", response);
+  };
 
   return (
     <>
-      <h1 class="text-teal-500">Hello</h1>
-      {count()}
+      <main class="bg-secondary grid h-dvh w-full grid-cols-[minmax(30rem,_70rem)] grid-rows-[auto_1fr_auto] justify-center px-10 text-white">
+        <Header />
+        <ChatMessages messages={messages()} />
+        <Input
+          setMessage={setMessage}
+          disabled={loading()}
+          handleMessage={handleMessage}
+        />
+        <small
+          class="right-0 bottom-2.5 left-0 m-auto w-80 text-xs text-[#555]"
+          ref={$small}
+        >
+          &nbsp; {smallInput()}
+        </small>
+      </main>
     </>
   );
 }
