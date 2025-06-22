@@ -85,7 +85,7 @@ function App() {
 
   return (
     <>
-      <main class="bg-secondary grid h-dvh w-full grid-cols-[minmax(30rem,_70rem)] grid-rows-[auto_1fr_auto] justify-center px-10 text-white">
+      <main class="bg-secondary grid h-dvh w-full grid-cols-[minmax(1fr,_70rem)] grid-rows-[auto_1fr_auto] justify-center px-10 text-white">
         <Header />
         <ChatMessages messages={messages()} />
         <Input
