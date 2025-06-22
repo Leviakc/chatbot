@@ -4,12 +4,12 @@ import type { Message } from "../data";
 interface InputProps {
   setMessage: Setter<Message[]>;
   disabled: boolean;
-  handleMessage: (message: string) => void;
+  handleMessage: (message: string) => Promise<any>
 }
 export const Input = (props: InputProps) => {
   const disabled = () => props.disabled || false;
   const handleMessage = (message: string) => props.handleMessage(message);
-  const handleSubmit = (e: SubmitEvent) => {
+  const handleSubmit = async (e: SubmitEvent) => {
     e.preventDefault();
     if (input.value.trim() === "") {
       return;
@@ -20,16 +20,7 @@ export const Input = (props: InputProps) => {
     };
     props.setMessage((prevMessages) => [...prevMessages, newMessage]);
     input.value = "";
-    console.log("newMessage", newMessage.content);
-    handleMessage(newMessage.content);
-    // Simulate a bot response
-    // setTimeout(() => {
-    //   const botResponse: Message = {
-    //     role: "bot",
-    //     message: `You said: ${newMessage.message}`,
-    //   };
-    //   props.setMessage((prevMessages) => [...prevMessages, botResponse]);
-    // }, 2000); // Simulate a delay for the bot response
+    await handleMessage(newMessage.content);
   };
 
   let input: HTMLInputElement = null!;
@@ -49,6 +40,7 @@ export const Input = (props: InputProps) => {
         id="message"
         ref={input}
         disabled={disabled()}
+        autocomplete="off"
       />
       <button
         type="submit"
